@@ -1,5 +1,5 @@
 
-import { MetricCategory, MetricDefinition } from './types';
+import { MetricCategory, MetricDefinition } from '../services/types';
 
 export const METRICS: MetricDefinition[] = [
   // --- FUNDING LIQUIDITY - PRIMARY ---
@@ -460,7 +460,7 @@ export const METRICS: MetricDefinition[] = [
     format: 'currency',
     transformScale: 0.001
   },
-    {
+  {
     id: 'DEALER_VOL_UST',
     name: 'Dealer Volume: UST',
     category: MetricCategory.PRIMARY,

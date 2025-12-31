@@ -1,9 +1,9 @@
 
 import React, { useState, useMemo } from 'react';
-import { MetricData, TimeRange } from '../types';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
-  ResponsiveContainer, ReferenceLine, Legend 
+import { MetricData, TimeRange } from '../services/types';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  ResponsiveContainer, ReferenceLine, Legend
 } from 'recharts';
 import { calculateVelocity, calculateAcceleration, calculateMean, calculateStdDev, calculateZScore, calculateRollingStdDev } from '../services/mathUtils';
 
@@ -41,7 +41,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
     const rawValues = displayHistory.map(d => d.value);
     const mean = calculateMean(rawValues);
     const stdDev = calculateStdDev(rawValues);
-    
+
     // Calculate real rolling volatility (30-day window)
     const rollingVolData = calculateRollingStdDev(displayHistory, 30);
     const volMap = new Map(rollingVolData.map(d => [d.date, d.value]));
@@ -51,7 +51,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
       zScore: calculateZScore(d.value, mean, stdDev),
       vol: volMap.get(d.date) || 0 // Use real calculated vol
     }));
-    
+
     return { mean, stdDev, data: dataWithStats };
   }, [displayHistory]);
 
@@ -68,20 +68,20 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
     '1Y': calculateAcceleration(metric.history, 365),
     '4Y': calculateAcceleration(metric.history, 365 * 4),
   }), [metric]);
-  
+
   // Handle overlay click to close
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
 
   const formatYAxis = (val: number) => {
-      if (showZScore) return val.toFixed(1);
-      if (metric.definition.format === 'currency') return `$${val}B`;
-      return val.toFixed(2);
+    if (showZScore) return val.toFixed(1);
+    if (metric.definition.format === 'currency') return `$${val}B`;
+    return val.toFixed(2);
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={handleOverlayClick}
     >
@@ -97,7 +97,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
             </div>
             <p className="text-gray-400 mt-1 max-w-2xl">{metric.definition.description}</p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
           >
@@ -106,7 +106,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
         </div>
 
         <div className="flex-1 overflow-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
+
           {/* Main Chart Section */}
           <div className="lg:col-span-3 space-y-4">
             {/* Toolbar */}
@@ -123,14 +123,14 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
                 ))}
               </div>
               <div className="flex items-center gap-4">
-                 <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
-                    <input type="checkbox" checked={showZScore} onChange={e => setShowZScore(e.target.checked)} className="rounded bg-gray-700 border-gray-600 text-primary-500 focus:ring-offset-gray-900" />
-                    Show Z-Score
-                 </label>
-                 <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
-                    <input type="checkbox" checked={showVol} onChange={e => setShowVol(e.target.checked)} className="rounded bg-gray-700 border-gray-600 text-primary-500 focus:ring-offset-gray-900" />
-                    Show 30D Rolling Vol
-                 </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                  <input type="checkbox" checked={showZScore} onChange={e => setShowZScore(e.target.checked)} className="rounded bg-gray-700 border-gray-600 text-primary-500 focus:ring-offset-gray-900" />
+                  Show Z-Score
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                  <input type="checkbox" checked={showVol} onChange={e => setShowVol(e.target.checked)} className="rounded bg-gray-700 border-gray-600 text-primary-500 focus:ring-offset-gray-900" />
+                  Show 30D Rolling Vol
+                </label>
               </div>
             </div>
 
@@ -138,118 +138,118 @@ const DetailModal: React.FC<DetailModalProps> = ({ metric, onClose }) => {
             <div className="h-[400px] w-full bg-gray-950 rounded-lg border border-gray-800 p-4">
               {stats.data.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={stats.data}>
+                  <LineChart data={stats.data}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.5} />
-                    <XAxis 
-                        dataKey="date" 
-                        stroke="#9CA3AF" 
-                        tickFormatter={(val) => val.slice(0,7)} 
-                        minTickGap={30}
-                        style={{ fontSize: '12px' }}
+                    <XAxis
+                      dataKey="date"
+                      stroke="#9CA3AF"
+                      tickFormatter={(val) => val.slice(0, 7)}
+                      minTickGap={30}
+                      style={{ fontSize: '12px' }}
                     />
-                    <YAxis 
-                        stroke="#9CA3AF"
-                        tickFormatter={formatYAxis} 
-                        domain={['auto', 'auto']}
-                        style={{ fontSize: '12px' }}
+                    <YAxis
+                      stroke="#9CA3AF"
+                      tickFormatter={formatYAxis}
+                      domain={['auto', 'auto']}
+                      style={{ fontSize: '12px' }}
                     />
-                    <RechartsTooltip 
-                        contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#F3F4F6' }}
-                        itemStyle={{ color: '#F3F4F6' }}
+                    <RechartsTooltip
+                      contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#F3F4F6' }}
+                      itemStyle={{ color: '#F3F4F6' }}
                     />
                     <Legend />
-                    <Line 
-                        type="monotone" 
-                        dataKey={showZScore ? "zScore" : "value"} 
-                        name={showZScore ? "Z-Score" : metric.definition.name}
-                        stroke="#3B82F6" 
-                        strokeWidth={2} 
-                        dot={false} 
-                        activeDot={{ r: 6 }}
+                    <Line
+                      type="monotone"
+                      dataKey={showZScore ? "zScore" : "value"}
+                      name={showZScore ? "Z-Score" : metric.definition.name}
+                      stroke="#3B82F6"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 6 }}
                     />
                     {showVol && !showZScore && (
-                        <Line 
-                            type="monotone"
-                            dataKey="vol"
-                            name="30D Rolling Vol"
-                            stroke="#EF4444"
-                            strokeWidth={1}
-                            strokeDasharray="5 5"
-                            dot={false}
-                            yAxisId={0}
-                        />
+                      <Line
+                        type="monotone"
+                        dataKey="vol"
+                        name="30D Rolling Vol"
+                        stroke="#EF4444"
+                        strokeWidth={1}
+                        strokeDasharray="5 5"
+                        dot={false}
+                        yAxisId={0}
+                      />
                     )}
                     {showZScore && (
-                        <>
-                            <ReferenceLine y={2} stroke="#EF4444" strokeDasharray="3 3" label="+2σ" />
-                            <ReferenceLine y={-2} stroke="#EF4444" strokeDasharray="3 3" label="-2σ" />
-                        </>
+                      <>
+                        <ReferenceLine y={2} stroke="#EF4444" strokeDasharray="3 3" label="+2σ" />
+                        <ReferenceLine y={-2} stroke="#EF4444" strokeDasharray="3 3" label="-2σ" />
+                      </>
                     )}
-                    </LineChart>
+                  </LineChart>
                 </ResponsiveContainer>
               ) : (
-                  <div className="flex items-center justify-center h-full text-gray-600">No History Available</div>
+                <div className="flex items-center justify-center h-full text-gray-600">No History Available</div>
               )}
             </div>
           </div>
 
           {/* Stats Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            
+
             {/* Stats Summary */}
-             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Distribution ({timeRange})</h4>
-                <div className="space-y-2 font-mono text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Mean</span>
-                        <span className="text-white">{stats.mean.toFixed(3)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Std Dev</span>
-                        <span className="text-white">{stats.stdDev.toFixed(3)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Current Z</span>
-                        <span className="text-white">
-                            {metric.currentValue !== null 
-                              ? `${calculateZScore(metric.currentValue, stats.mean, stats.stdDev).toFixed(2)}σ` 
-                              : 'N/A'}
-                        </span>
-                    </div>
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+              <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Distribution ({timeRange})</h4>
+              <div className="space-y-2 font-mono text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Mean</span>
+                  <span className="text-white">{stats.mean.toFixed(3)}</span>
                 </div>
-             </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Std Dev</span>
+                  <span className="text-white">{stats.stdDev.toFixed(3)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Current Z</span>
+                  <span className="text-white">
+                    {metric.currentValue !== null
+                      ? `${calculateZScore(metric.currentValue, stats.mean, stats.stdDev).toFixed(2)}σ`
+                      : 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
 
             {/* Velocity & Acceleration */}
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Momentum Analytics</h4>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead>
-                            <tr className="border-b border-gray-700 text-gray-500">
-                                <th className="py-2 font-medium">Period</th>
-                                <th className="py-2 font-medium text-right">Vel</th>
-                                <th className="py-2 font-medium text-right">Accel</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-700 font-mono">
-                            {['1M', '3M', '1Y', '4Y'].map(p => {
-                                const v = velocity[p as keyof typeof velocity];
-                                const a = acceleration[p as keyof typeof acceleration];
-                                return (
-                                    <tr key={p}>
-                                        <td className="py-2 text-gray-300">{p}</td>
-                                        <td className={`py-2 text-right ${v >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                            {v.toFixed(3)}
-                                        </td>
-                                        <td className={`py-2 text-right ${a >= 0 ? 'text-blue-400' : 'text-orange-400'}`}>
-                                            {a.toFixed(3)}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+              <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Momentum Analytics</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead>
+                    <tr className="border-b border-gray-700 text-gray-500">
+                      <th className="py-2 font-medium">Period</th>
+                      <th className="py-2 font-medium text-right">Vel</th>
+                      <th className="py-2 font-medium text-right">Accel</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-700 font-mono">
+                    {['1M', '3M', '1Y', '4Y'].map(p => {
+                      const v = velocity[p as keyof typeof velocity];
+                      const a = acceleration[p as keyof typeof acceleration];
+                      return (
+                        <tr key={p}>
+                          <td className="py-2 text-gray-300">{p}</td>
+                          <td className={`py-2 text-right ${v >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {v.toFixed(3)}
+                          </td>
+                          <td className={`py-2 text-right ${a >= 0 ? 'text-blue-400' : 'text-orange-400'}`}>
+                            {a.toFixed(3)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
           </div>

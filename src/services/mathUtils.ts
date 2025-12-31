@@ -1,5 +1,5 @@
 
-import { DataPoint } from '../types';
+import { DataPoint } from './types';
 
 export const calculateMean = (data: number[]): number => {
   if (data.length === 0) return 0;
@@ -16,7 +16,7 @@ export const calculateStdDev = (data: number[]): number => {
 export const calculateRollingStdDev = (data: DataPoint[], windowSize: number): DataPoint[] => {
   if (data.length < windowSize) return [];
   const result: DataPoint[] = [];
-  
+
   // Sort by date ascending to ensure rolling window is correct
   const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -25,8 +25,8 @@ export const calculateRollingStdDev = (data: DataPoint[], windowSize: number): D
     const mean = calculateMean(windowSlice);
     const variance = windowSlice.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / windowSize;
     result.push({
-        date: sortedData[i].date,
-        value: Math.sqrt(variance)
+      date: sortedData[i].date,
+      value: Math.sqrt(variance)
     });
   }
   return result;
@@ -46,42 +46,42 @@ export const calculatePercentile = (data: number[], percentile: number): number 
 
 // Helper to find value N days ago based on Date objects, not array indices
 const getValueByLookback = (history: DataPoint[], daysAgo: number): number | null => {
-    if (history.length === 0) return null;
-    
-    const current = history[history.length - 1];
-    const currentDate = new Date(current.date).getTime();
-    const targetDate = currentDate - (daysAgo * 24 * 60 * 60 * 1000);
-    
-    // Find point closest to target date
-    let closestPoint: DataPoint | null = null;
-    let minDiff = Infinity;
-    
-    // Iterate backwards as recent data is at the end
-    for (let i = history.length - 1; i >= 0; i--) {
-        const ptTime = new Date(history[i].date).getTime();
-        const diff = Math.abs(ptTime - targetDate);
-        
-        if (diff < minDiff) {
-            minDiff = diff;
-            closestPoint = history[i];
-        } else {
-            // Optimization: If diff starts growing and we are past the target, we found the closest
-            if (ptTime < targetDate) break; 
-        }
+  if (history.length === 0) return null;
+
+  const current = history[history.length - 1];
+  const currentDate = new Date(current.date).getTime();
+  const targetDate = currentDate - (daysAgo * 24 * 60 * 60 * 1000);
+
+  // Find point closest to target date
+  let closestPoint: DataPoint | null = null;
+  let minDiff = Infinity;
+
+  // Iterate backwards as recent data is at the end
+  for (let i = history.length - 1; i >= 0; i--) {
+    const ptTime = new Date(history[i].date).getTime();
+    const diff = Math.abs(ptTime - targetDate);
+
+    if (diff < minDiff) {
+      minDiff = diff;
+      closestPoint = history[i];
+    } else {
+      // Optimization: If diff starts growing and we are past the target, we found the closest
+      if (ptTime < targetDate) break;
     }
-    
-    // If the closest point is wildly off (e.g. data gap > 2x the lookback), maybe return null?
-    // For now, we assume best effort is better than nothing for sparse data like Weekly Fails.
-    return closestPoint ? closestPoint.value : null;
+  }
+
+  // If the closest point is wildly off (e.g. data gap > 2x the lookback), maybe return null?
+  // For now, we assume best effort is better than nothing for sparse data like Weekly Fails.
+  return closestPoint ? closestPoint.value : null;
 };
 
 // Calculates simple velocity (change over period n days)
 export const calculateVelocity = (history: DataPoint[], days: number): number => {
   if (history.length < 2) return 0;
-  
+
   const current = history[history.length - 1].value;
   const past = getValueByLookback(history, days);
-  
+
   if (past === null) return 0;
   return (current - past);
 };
@@ -91,18 +91,18 @@ export const calculateAcceleration = (history: DataPoint[], days: number): numbe
   // Accel = (V_now - V_prev)
   // V_now = Price_0 - Price_30
   // V_prev = Price_30 - Price_60
-  
+
   if (history.length < 2) return 0;
-  
+
   const p0 = history[history.length - 1].value;
   const p1 = getValueByLookback(history, days);
   const p2 = getValueByLookback(history, days * 2);
-  
+
   if (p1 === null || p2 === null) return 0;
-  
+
   const v1 = p0 - p1;
   const v2 = p1 - p2;
-  
+
   return v1 - v2;
 };
 

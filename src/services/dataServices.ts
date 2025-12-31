@@ -152,9 +152,7 @@ export const processCsvData = (csvText: string): boolean => {
 /**
  * helper to get data from the CSV cache
  */
-const getPrimaryData = (id: string): DataPoint[] => {
-  return parsedDataCache[id] || [];
-};
+
 
 // Calculate secondary metrics
 const calculateSecondaryData = (id: string): DataPoint[] => {
@@ -255,7 +253,7 @@ const calculateSecondaryData = (id: string): DataPoint[] => {
   }
 };
 
-export const fetchAllMetrics = async (forceRefresh = false): Promise<MetricData[]> => {
+export const fetchAllMetrics = async (_forceRefresh = false): Promise<MetricData[]> => {
   // If no CSV is loaded, metrics will simply be empty and display N/A.
   // We do NOT generate mock data.
 
