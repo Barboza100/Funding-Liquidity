@@ -59,7 +59,7 @@ const Dashboard: React.FC = () => {
 
         try {
             await orchestrateLiveFetch((msg) => {
-                setFetchLog(prev => msg); // Update current status
+                setFetchLog(_prev => msg); // Update current status
             });
             await refreshDashboard();
         } catch (e) {
